@@ -271,7 +271,7 @@ echo "<br>";
 for($x = 0; $x < count($ReturnData); $x++) {
 	echo $ReturnData[$x];
 	echo "<br>";
- $text = $text . $ReturnData[$x];
+ $text = $text . $ReturnData[$x] . "\n";
 }
 
    
