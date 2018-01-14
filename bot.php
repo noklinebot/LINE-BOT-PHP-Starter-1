@@ -69,7 +69,7 @@ function MyType($TmpStr){
 			$checktype = 'ล่าง';
 		}
 
-		$ReturnData[$x] = $SPLine[$x]. " /// ";
+		//$ReturnData[$x] = $SPLine[$x]. " /// ";
 
 		if (($checktype=="บน" || $checktype=="ล่าง")){
 			if (!empty($ReadData)){
