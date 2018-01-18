@@ -19,13 +19,15 @@ if (!is_null($events['events'])) {
 
 
 
-   
-   
+   if (strpos(trim($text),'DoorControl :')>0){
+	  
+   }
+   else{
    
    
     // Insert postgreSQL
-   $dbconn = pg_connect("host=ec2-54-225-255-132.compute-1.amazonaws.com port=5432 dbname=d1fcitdn1516dv user=roxhkyiabreyva password=b895f0848a866f6590be13f6b843b6bce4a9a875137c0e8f635722c2535500c5 sslmode=require options='--client_encoding=UTF8'") or die('Could not connect: ' . pg_last_error());
-   pg_query_params($dbconn, 'INSERT INTO lotto(msg, sender) VALUES ($1, $2);', array($text, $replyToken));
+   //$dbconn = pg_connect("host=ec2-54-225-255-132.compute-1.amazonaws.com port=5432 dbname=d1fcitdn1516dv user=roxhkyiabreyva password=b895f0848a866f6590be13f6b843b6bce4a9a875137c0e8f635722c2535500c5 sslmode=require options='--client_encoding=UTF8'") or die('Could not connect: ' . pg_last_error());
+   //pg_query_params($dbconn, 'INSERT INTO lotto(msg, sender) VALUES ($1, $2);', array($text, $replyToken));
    
 $GLOBALS["checktype"] = "";
 $GLOBALS["ArrNo"]=0;
@@ -275,7 +277,7 @@ for($x = 0; $x < count($ReturnData); $x++) {
  $text = $text . $ReturnData[$x] . "\n";
 }
 
-   
+   }
    
       // Build message to reply back
    $messages = [
