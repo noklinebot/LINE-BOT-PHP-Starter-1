@@ -2,15 +2,52 @@
 $access_token = 'rufj2ZJ4iDMiyJvV9LHIom82VqtKJXW0oo5t4seLZqXCjdiXskE5HYMWWtGx09J/HfWHmb3PXO0TmkQm1XGYttMl24ckWdLZKcWx5sY4V5s1dk4W1zKuVjtM5khLwFI3uUkx5c/b2CFZ8rwk3mZyjQdB04t89/1O/w1cDnyilFU=';
 
 
-$url = 'https://api.line.me/v1/oauth/verify';
-$headers = array('Authorization: Bearer ' . $access_token);
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-$result = curl_exec($ch);
-curl_close($ch);
-
+use LINE\LINEBot;
+use LINE\LINEBot\HTTPClient\GuzzleHTTPClient;
+ 
+// Set these values
+$config = [
+    'channelId' => LINE_CHANNEL_ID,
+    'channelSecret' => LINE_CHANNEL_SECRET,
+    'channelMid' => LINE_CHANNEL_MID,
+];
+$sdk = new LINEBot($config, new GuzzleHTTPClient($config));
+ 
+$postdata = @file_get_contents("php://input");
+$messages = $sdk->createReceivesFromJSON($postdata);
+ 
+// Verify the signature
+// REF: http://line.github.io/line-bot-api-doc/en/api/callback/post.html#signature-verification
+// REF: http://stackoverflow.com/a/541450
+$sigheader = 'X-LINE-ChannelSignature';
+$signature = @$_SERVER[ 'HTTP_'.strtoupper(str_replace('-','_',$sigheader)) ];
+if($signature && $sdk->validateSignature($postdata, $signature)) {
+    // Next, extract the messages
+    if(is_array($messages)) {
+        foreach ($messages as $message) {
+            if ($message instanceof LINEBot\Receive\Message\Text) {
+                $text = $message->getText();
+                if (strtolower(trim($text)) === "whoami") {
+                    $fromMid = $message->getFromMid();
+                    $user = $sdk->getUserProfile($fromMid);
+                    $displayName = $user['contacts'][0]['displayName'];
+ 
+                    $reply = "You are $displayName, and your mid is:\n\n$fromMid";
+ 
+                    // Send the mid back to the sender and check if the message was delivered
+                    $result = $sdk->sendText([$fromMid], $reply);
+                    if(!$result instanceof LINE\LINEBot\Response\SucceededResponse) {
+                        error_log('LINE error: ' . json_encode($result));
+                    }
+                } else {
+                    // Process normally, or do nothing
+                }
+            } else {
+                // Process other types of LINE messages like image, video, sticker, etc.
+            }
+        }
+    } // Else, error
+}
 
 // Get POST body content
 $content = file_get_contents('php://input');
@@ -281,7 +318,7 @@ for($x = 0; $x < count($CorrectData); $x++) {
 
 echo "<br>";
    
-  $text = $result . "";
+  $text = $reply . "";
 for($x = 0; $x < count($ReturnData); $x++) {
 	echo $ReturnData[$x];
 	echo "<br>";
